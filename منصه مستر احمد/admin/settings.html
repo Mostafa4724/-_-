@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings · EduPlatform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="css/settings.css">
+</head>
+<body data-page="settings" data-lang="en">
+  <div class="app">
+    <aside class="sidebar"></aside>
+    <main class="main">
+      <header class="topbar"></header>
+      <div class="page" id="pageContent">
+        <div class="page-head">
+          <div>
+            <div class="page-head-title" data-i18n="settings_title">Settings</div>
+            <div class="page-head-sub" data-i18n="settings_sub">Configure your platform preferences</div>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-primary btn-sm" id="saveSettingsBtn">
+              <i data-lucide="save" class="icon"></i>
+              <span data-i18n="save_settings">Save Settings</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="settings-layout">
+          <!-- Settings sidebar tabs -->
+          <aside class="settings-tabs-wrap">
+            <button class="settings-tab active" data-tab="general">
+              <i data-lucide="settings-2" class="icon"></i><span data-i18n="general">General</span>
+            </button>
+            <button class="settings-tab" data-tab="profile">
+              <i data-lucide="user" class="icon"></i><span data-i18n="admin_profile">Admin Profile</span>
+            </button>
+            <button class="settings-tab" data-tab="users">
+              <i data-lucide="users" class="icon"></i><span data-i18n="user_management">User Management</span>
+            </button>
+            <button class="settings-tab" data-tab="roles">
+              <i data-lucide="shield" class="icon"></i><span data-i18n="roles_permissions">Roles & Permissions</span>
+            </button>
+            <button class="settings-tab" data-tab="notifications">
+              <i data-lucide="bell" class="icon"></i><span data-i18n="notification_settings">Notifications</span>
+            </button>
+            <button class="settings-tab" data-tab="security">
+              <i data-lucide="lock" class="icon"></i><span data-i18n="security">Security</span>
+            </button>
+            <button class="settings-tab" data-tab="language">
+              <i data-lucide="languages" class="icon"></i><span data-i18n="language_settings">Language</span>
+            </button>
+            <button class="settings-tab" data-tab="appearance">
+              <i data-lucide="palette" class="icon"></i><span data-i18n="appearance">Appearance</span>
+            </button>
+          </aside>
+
+          <!-- Settings content -->
+          <div class="settings-content">
+            <!-- General -->
+            <div class="tab-panel active" id="panel-general">
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="general">General Settings</div></div>
+                <div class="card-body">
+                  <div class="form-grid">
+                    <div class="form-group">
+                      <label class="form-label" data-i18n="platform_name">Platform Name</label>
+                      <input type="text" class="form-control" id="s_platName" value="EduPlatform">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" data-i18n="contact_info">Contact Email</label>
+                      <input type="email" class="form-control" id="s_email" value="contact@edu.ma">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Contact Phone</label>
+                      <input type="tel" class="form-control" id="s_phone" value="+212 5XX-XXXXXX">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" data-i18n="website_info">Website URL</label>
+                      <input type="url" class="form-control" id="s_url" value="https://edu.ma">
+                    </div>
+                    <div class="form-group" style="grid-column:span 2">
+                      <label class="form-label" data-i18n="platform_description">Platform Description</label>
+                      <textarea class="form-control" id="s_desc" rows="3">A modern educational platform providing online lessons, exams, homework, and academic results for students.</textarea>
+                    </div>
+                    <div class="form-group" style="grid-column:span 2">
+                      <label class="form-label" data-i18n="platform_logo">Platform Logo</label>
+                      <div class="file-drop">
+                        <i data-lucide="image" class="icon"></i>
+                        <div><strong>Click to upload</strong> logo (PNG, SVG, max 1MB)</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Profile -->
+            <div class="tab-panel" id="panel-profile">
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="admin_profile">Admin Profile</div></div>
+                <div class="card-body">
+                  <div class="profile-edit-head">
+                    <div class="profile-edit-avatar">AD</div>
+                    <div>
+                      <button class="btn btn-secondary btn-sm"><i data-lucide="upload" class="icon"></i><span>Change Photo</span></button>
+                      <button class="btn btn-ghost btn-sm"><i data-lucide="trash-2" class="icon"></i><span>Remove</span></button>
+                    </div>
+                  </div>
+                  <div class="divider"></div>
+                  <div class="form-grid">
+                    <div class="form-group"><label class="form-label" data-i18n="full_name">Full Name</label><input type="text" class="form-control" value="Dr. Admin"></div>
+                    <div class="form-group"><label class="form-label" data-i18n="email">Email</label><input type="email" class="form-control" value="admin@edu.ma"></div>
+                    <div class="form-group"><label class="form-label" data-i18n="phone">Phone</label><input type="tel" class="form-control" value="+212 6XX-XXXXXX"></div>
+                    <div class="form-group"><label class="form-label">Position</label><input type="text" class="form-control" value="Platform Administrator"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Users -->
+            <div class="tab-panel" id="panel-users">
+              <div class="card">
+                <div class="card-head">
+                  <div><div class="card-title" data-i18n="admin_accounts">Admin Accounts</div><div class="card-sub">Manage administrator accounts</div></div>
+                  <button class="btn btn-primary btn-sm"><i data-lucide="user-plus" class="icon"></i><span>Add Admin</span></button>
+                </div>
+                <div class="table-wrap">
+                  <table class="table">
+                    <thead><tr>
+                      <th data-i18n="full_name">Name</th>
+                      <th data-i18n="email">Email</th>
+                      <th>Role</th>
+                      <th>Last Login</th>
+                      <th data-i18n="status">Status</th>
+                      <th data-i18n="actions">Actions</th>
+                    </tr></thead>
+                    <tbody id="adminsTbody"></tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+
+            <!-- Roles -->
+            <div class="tab-panel" id="panel-roles">
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="roles_permissions">Roles & Permissions</div></div>
+                <div class="card-body">
+                  <div class="permissions-grid">
+                    <div class="perm-row perm-head">
+                      <div></div>
+                      <div>Super Admin</div>
+                      <div>Manager</div>
+                      <div>Editor</div>
+                      <div>Reviewer</div>
+                    </div>
+                    <div id="permRows"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notifications -->
+            <div class="tab-panel" id="panel-notifications">
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="notification_settings">Notification Settings</div></div>
+                <div class="card-body">
+                  <div class="settings-list">
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label" data-i18n="enable_notifications">Enable Notifications</div><div class="settings-list-desc">Master switch for all notifications</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label" data-i18n="email_notifications">Email Notifications</div><div class="settings-list-desc">Receive notifications via email</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label" data-i18n="push_notifications">Push Notifications</div><div class="settings-list-desc">Browser push notifications</div></div>
+                      <label class="switch"><input type="checkbox"><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label">New Student Registration</div><div class="settings-list-desc">Notify when a new student registers</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label">Exam Submissions</div><div class="settings-list-desc">Notify when students submit exams</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label">Homework Deadlines</div><div class="settings-list-desc">Alert when homework deadlines approach</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Security -->
+            <div class="tab-panel" id="panel-security">
+              <div class="card" style="margin-bottom:20px">
+                <div class="card-head"><div class="card-title" data-i18n="change_password">Change Password</div></div>
+                <div class="card-body">
+                  <div class="form-grid">
+                    <div class="form-group" style="grid-column:span 2"><label class="form-label" data-i18n="current_password">Current Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+                    <div class="form-group"><label class="form-label" data-i18n="new_password">New Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+                    <div class="form-group"><label class="form-label" data-i18n="confirm_password">Confirm Password</label><input type="password" class="form-control" placeholder="••••••••"></div>
+                  </div>
+                  <button class="btn btn-primary btn-sm mt-3"><i data-lucide="key" class="icon"></i><span data-i18n="change_password">Change Password</span></button>
+                </div>
+              </div>
+              <div class="card" style="margin-bottom:20px">
+                <div class="card-head"><div class="card-title" data-i18n="login_security">Login Security</div></div>
+                <div class="card-body">
+                  <div class="settings-list">
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label" data-i18n="two_factor">Two-Factor Authentication</div><div class="settings-list-desc">Add an extra layer of security</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label">Login Alerts</div><div class="settings-list-desc">Get notified of new logins</div></div>
+                      <label class="switch"><input type="checkbox" checked><span class="switch-slider"></span></label>
+                    </div>
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label">Auto Logout</div><div class="settings-list-desc">Logout after 30 minutes of inactivity</div></div>
+                      <label class="switch"><input type="checkbox"><span class="switch-slider"></span></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="session_management">Session Management</div></div>
+                <div class="card-body">
+                  <div class="session-item">
+                    <div class="session-icon" style="background:var(--tint-secondary);color:var(--secondary)"><i data-lucide="monitor" class="icon"></i></div>
+                    <div style="flex:1"><div class="settings-list-label">Chrome · Windows</div><div class="settings-list-desc">Rabat, Morocco · Active now</div></div>
+                    <span class="badge badge-success"><span class="dot"></span>Current</span>
+                  </div>
+                  <div class="session-item">
+                    <div class="session-icon" style="background:var(--tint-warning);color:var(--warning)"><i data-lucide="smartphone" class="icon"></i></div>
+                    <div style="flex:1"><div class="settings-list-label">Safari · iPhone</div><div class="settings-list-desc">Casablanca · 2 hours ago</div></div>
+                    <button class="btn btn-secondary btn-sm">Revoke</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Language -->
+            <div class="tab-panel" id="panel-language">
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="language_settings">Language Settings</div></div>
+                <div class="card-body">
+                  <div class="lang-options">
+                    <label class="lang-option">
+                      <input type="radio" name="lang" value="en" id="langEn">
+                      <div class="lang-option-inner">
+                        <div class="lang-flag">EN</div>
+                        <div><div class="settings-list-label">English</div><div class="settings-list-desc">Left-to-right layout</div></div>
+                        <i data-lucide="check" class="check-icon"></i>
+                      </div>
+                    </label>
+                    <label class="lang-option">
+                      <input type="radio" name="lang" value="ar" id="langAr">
+                      <div class="lang-option-inner">
+                        <div class="lang-flag">AR</div>
+                        <div><div class="settings-list-label">العربية</div><div class="settings-list-desc">Right-to-left layout</div></div>
+                        <i data-lucide="check" class="check-icon"></i>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Appearance -->
+            <div class="tab-panel" id="panel-appearance">
+              <div class="card" style="margin-bottom:20px">
+                <div class="card-head"><div class="card-title" data-i18n="appearance">Theme</div></div>
+                <div class="card-body">
+                  <div class="theme-options">
+                    <label class="theme-option">
+                      <input type="radio" name="theme" value="light" id="themeLight">
+                      <div class="theme-option-inner light-preview">
+                        <div class="theme-preview"><div class="tp-side"></div><div class="tp-main"><div class="tp-bar"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+                        <div class="theme-option-label"><i data-lucide="sun" class="icon"></i><span data-i18n="light_mode">Light Mode</span></div>
+                      </div>
+                    </label>
+                    <label class="theme-option">
+                      <input type="radio" name="theme" value="dark" id="themeDark">
+                      <div class="theme-option-inner dark-preview">
+                        <div class="theme-preview"><div class="tp-side"></div><div class="tp-main"><div class="tp-bar"></div><div class="tp-card"></div><div class="tp-card"></div></div></div>
+                        <div class="theme-option-label"><i data-lucide="moon" class="icon"></i><span data-i18n="dark_mode">Dark Mode</span></div>
+                      </div>
+                    </label>
+                  </div>
+                </div>
+              </div>
+              <div class="card">
+                <div class="card-head"><div class="card-title" data-i18n="sidebar_preferences">Sidebar Preferences</div></div>
+                <div class="card-body">
+                  <div class="settings-list">
+                    <div class="settings-list-item">
+                      <div><div class="settings-list-label" data-i18n="collapsed_default">Collapsed by default</div><div class="settings-list-desc">Collapse sidebar on initial load</div></div>
+                      <label class="switch"><input type="checkbox" id="s_sidebarCollapsed"><span class="switch-slider"></span></label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/settings.js"></script>
+</body>
+</html>

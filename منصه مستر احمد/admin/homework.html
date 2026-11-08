@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homework · EduPlatform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="css/homework.css">
+</head>
+<body data-page="homework" data-lang="en">
+  <div class="app">
+    <aside class="sidebar"></aside>
+    <main class="main">
+      <header class="topbar"></header>
+      <div class="page" id="pageContent">
+        <div class="page-head">
+          <div>
+            <div class="page-head-title" data-i18n="homework_title">Homework Management</div>
+            <div class="page-head-sub" data-i18n="homework_sub">Create and track homework assignments</div>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-primary btn-sm" id="createHwBtn">
+              <i data-lucide="plus" class="icon"></i>
+              <span data-i18n="create_homework">Create Homework</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Dashboard stats -->
+        <div class="grid grid-5" style="margin-bottom: 20px;">
+          <div class="stat-card" style="--stat-color:#2563EB;--stat-tint:var(--tint-secondary)">
+            <div class="stat-top"><div class="stat-icon"><i data-lucide="clipboard-list" class="icon"></i></div></div>
+            <div class="stat-value" id="hw-total">12</div>
+            <div class="stat-label" data-i18n="total_assignments">Total</div>
+          </div>
+          <div class="stat-card" style="--stat-color:#F59E0B;--stat-tint:var(--tint-warning)">
+            <div class="stat-top"><div class="stat-icon"><i data-lucide="clock" class="icon"></i></div></div>
+            <div class="stat-value" id="hw-pending">2</div>
+            <div class="stat-label" data-i18n="pending_submissions">Pending</div>
+          </div>
+          <div class="stat-card" style="--stat-color:#0EA5E9;--stat-tint:rgba(14,165,233,0.12)">
+            <div class="stat-top"><div class="stat-icon"><i data-lucide="send" class="icon"></i></div></div>
+            <div class="stat-value" id="hw-submitted">3</div>
+            <div class="stat-label" data-i18n="submitted">Submitted</div>
+          </div>
+          <div class="stat-card" style="--stat-color:#7C3AED;--stat-tint:var(--tint-accent)">
+            <div class="stat-top"><div class="stat-icon"><i data-lucide="eye" class="icon"></i></div></div>
+            <div class="stat-value" id="hw-review">2</div>
+            <div class="stat-label" data-i18n="waiting_review">Waiting Review</div>
+          </div>
+          <div class="stat-card" style="--stat-color:#10B981;--stat-tint:var(--tint-success)">
+            <div class="stat-top"><div class="stat-icon"><i data-lucide="check-circle" class="icon"></i></div></div>
+            <div class="stat-value" id="hw-done">3</div>
+            <div class="stat-label" data-i18n="completed">Completed</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom:20px">
+          <div class="card-body" style="padding:14px 20px">
+            <div class="filters-bar" style="margin-bottom:0">
+              <div class="search-wrap search-inline">
+                <i data-lucide="search" class="icon"></i>
+                <input type="text" class="form-control search-input" id="filterSearch" data-i18n-ph="search_placeholder" placeholder="Search homework...">
+              </div>
+              <select class="form-control" id="filterSubject" style="height:38px"><option value="" data-i18n="subject">Subject</option></select>
+              <select class="form-control" id="filterGrade" style="height:38px"><option value="" data-i18n="grade">Grade</option></select>
+              <select class="form-control" id="filterStatus" style="height:38px">
+                <option value="" data-i18n="status">Status</option>
+                <option value="pending" data-i18n="pending">Pending</option>
+                <option value="submitted" data-i18n="submitted">Submitted</option>
+                <option value="under_review" data-i18n="under_review">Under Review</option>
+                <option value="graded" data-i18n="graded">Graded</option>
+                <option value="late" data-i18n="late">Late</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Homework table -->
+        <div class="card">
+          <div class="card-head">
+            <div><div class="card-title" data-i18n="homework_title">Homework</div><div class="card-sub">All assignments across grades</div></div>
+          </div>
+          <div class="table-wrap">
+            <table class="table">
+              <thead><tr>
+                <th data-i18n="homework_title_field">Homework</th>
+                <th data-i18n="subject">Subject</th>
+                <th data-i18n="grade">Grade</th>
+                <th data-i18n="submission_deadline">Deadline</th>
+                <th data-i18n="total_marks">Marks</th>
+                <th data-i18n="submitted">Submissions</th>
+                <th data-i18n="status">Status</th>
+                <th data-i18n="actions">Actions</th>
+              </tr></thead>
+              <tbody id="hwTbody"></tbody>
+            </table>
+          </div>
+          <div class="pagination" id="hwPagination"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create/Edit Homework Modal -->
+  <div class="modal-overlay" id="hwModal">
+    <div class="modal modal-lg">
+      <div class="modal-head">
+        <div><div class="modal-title" id="hwModalTitle" data-i18n="create_homework">Create Homework</div><div class="modal-sub">Set assignment details and attach materials</div></div>
+        <button class="icon-btn" onclick="closeModal('hwModal')"><i data-lucide="x" class="icon"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="hwIdField">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label" data-i18n="homework_title_field">Homework Title <span class="req">*</span></label>
+            <input type="text" class="form-control" id="h_title" required>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label" data-i18n="description">Description</label>
+            <textarea class="form-control" id="h_desc" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="subject">Subject <span class="req">*</span></label>
+            <select class="form-control" id="h_subject"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="grade">Grade <span class="req">*</span></label>
+            <select class="form-control" id="h_grade"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="class">Class</label>
+            <select class="form-control" id="h_class"></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="total_marks">Total Marks</label>
+            <input type="number" class="form-control" id="h_marks" value="20" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="submission_deadline">Deadline <span class="req">*</span></label>
+            <input type="date" class="form-control" id="h_deadline">
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="status">Status</label>
+            <select class="form-control" id="h_status">
+              <option value="pending" data-i18n="pending">Pending</option>
+              <option value="submitted" data-i18n="submitted">Submitted</option>
+              <option value="under_review" data-i18n="under_review">Under Review</option>
+              <option value="graded" data-i18n="graded">Graded</option>
+            </select>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label" data-i18n="attached_files">Attached Files</label>
+            <div class="file-drop" id="hwFilesDrop">
+              <i data-lucide="upload-cloud" class="icon"></i>
+              <div><strong>Upload PDF</strong> or materials</div>
+              <div class="text-xs text-3 mt-2">PDF, DOCX up to 10MB</div>
+            </div>
+            <input type="file" id="hwFilesInput" accept=".pdf,.docx" multiple hidden>
+            <div id="hwFilesList" class="mt-2"></div>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal('hwModal')" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-primary" id="saveHwBtn" data-i18n="save">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Review Submission Modal -->
+  <div class="modal-overlay" id="reviewModal">
+    <div class="modal modal-lg">
+      <div class="modal-head">
+        <div><div class="modal-title" id="reviewTitle"></div><div class="modal-sub" data-i18n="review_submission">Review Submission</div></div>
+        <button class="icon-btn" onclick="closeModal('reviewModal')"><i data-lucide="x" class="icon"></i></button>
+      </div>
+      <div class="modal-body" id="reviewBody"></div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal('reviewModal')" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-primary" id="saveReviewBtn" data-i18n="grade_submission">Grade Submission</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/homework.js"></script>
+</body>
+</html>

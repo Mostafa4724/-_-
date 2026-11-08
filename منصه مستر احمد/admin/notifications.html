@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Notifications · EduPlatform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/shared.css">
+  <link rel="stylesheet" href="css/notifications.css">
+</head>
+<body data-page="notifications" data-lang="en">
+  <div class="app">
+    <aside class="sidebar"></aside>
+    <main class="main">
+      <header class="topbar"></header>
+      <div class="page" id="pageContent">
+        <div class="page-head">
+          <div>
+            <div class="page-head-title" data-i18n="notifications_title">Notifications</div>
+            <div class="page-head-sub" data-i18n="notifications_sub">Send and manage platform announcements</div>
+          </div>
+          <div class="page-head-actions">
+            <button class="btn btn-primary btn-sm" id="createNotifBtn">
+              <i data-lucide="plus" class="icon"></i>
+              <span data-i18n="create_notification">Create Notification</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-2" style="grid-template-columns: 1fr 360px;">
+          <!-- Notifications history -->
+          <div class="card">
+            <div class="card-head">
+              <div><div class="card-title" data-i18n="notif_history">Notification History</div><div class="card-sub">All sent notifications</div></div>
+              <div class="flex gap-2">
+                <select class="form-control" id="filterType" style="height:36px">
+                  <option value="" data-i18n="all">All Types</option>
+                  <option value="general" data-i18n="general">General</option>
+                  <option value="new_lesson" data-i18n="new_lesson">New Lesson</option>
+                  <option value="upcoming_exam" data-i18n="upcoming_exam">Upcoming Exam</option>
+                  <option value="homework_deadline" data-i18n="homework_deadline">Homework Deadline</option>
+                  <option value="results_published" data-i18n="results_published">Results Published</option>
+                  <option value="platform_update" data-i18n="platform_update">Platform Update</option>
+                </select>
+              </div>
+            </div>
+            <div class="card-body" id="notifList" style="padding: 12px; max-height: 600px; overflow-y: auto;"></div>
+          </div>
+
+          <!-- Side: Quick stats + types -->
+          <div class="flex-col gap-4">
+            <div class="card">
+              <div class="card-head"><div class="card-title" data-i18n="notifications">Notifications</div></div>
+              <div class="card-body">
+                <div class="notif-stats">
+                  <div class="notif-stat-item">
+                    <div class="notif-stat-icon" style="background:var(--tint-secondary);color:var(--secondary)"><i data-lucide="bell" class="icon"></i></div>
+                    <div><div class="notif-stat-value">7</div><div class="notif-stat-label" data-i18n="notifications">Total</div></div>
+                  </div>
+                  <div class="notif-stat-item">
+                    <div class="notif-stat-icon" style="background:var(--tint-danger);color:var(--danger)"><i data-lucide="bell-ring" class="icon"></i></div>
+                    <div><div class="notif-stat-value">3</div><div class="notif-stat-label" data-i18n="pending">Unread</div></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="card">
+              <div class="card-head"><div class="card-title" data-i18n="notif_type">Types</div></div>
+              <div class="card-body" id="typeBreakdown"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create Notification Modal -->
+  <div class="modal-overlay" id="notifModal">
+    <div class="modal modal-lg">
+      <div class="modal-head">
+        <div><div class="modal-title" data-i18n="create_notification">Create Notification</div><div class="modal-sub">Send announcements to students</div></div>
+        <button class="icon-btn" onclick="closeModal('notifModal')"><i data-lucide="x" class="icon"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label" data-i18n="notif_type">Type <span class="req">*</span></label>
+            <div class="type-grid">
+              <label class="type-card">
+                <input type="radio" name="n_type" value="general" checked>
+                <div class="type-card-inner"><i data-lucide="megaphone" class="icon"></i><span data-i18n="general">General</span></div>
+              </label>
+              <label class="type-card">
+                <input type="radio" name="n_type" value="new_lesson">
+                <div class="type-card-inner"><i data-lucide="book-open" class="icon"></i><span data-i18n="new_lesson">New Lesson</span></div>
+              </label>
+              <label class="type-card">
+                <input type="radio" name="n_type" value="upcoming_exam">
+                <div class="type-card-inner"><i data-lucide="file-text" class="icon"></i><span data-i18n="upcoming_exam">Exam</span></div>
+              </label>
+              <label class="type-card">
+                <input type="radio" name="n_type" value="homework_deadline">
+                <div class="type-card-inner"><i data-lucide="clipboard-list" class="icon"></i><span data-i18n="homework_deadline">Deadline</span></div>
+              </label>
+              <label class="type-card">
+                <input type="radio" name="n_type" value="results_published">
+                <div class="type-card-inner"><i data-lucide="award" class="icon"></i><span data-i18n="results_published">Results</span></div>
+              </label>
+              <label class="type-card">
+                <input type="radio" name="n_type" value="platform_update">
+                <div class="type-card-inner"><i data-lucide="sparkles" class="icon"></i><span data-i18n="platform_update">Update</span></div>
+              </label>
+            </div>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label" data-i18n="notif_title">Title <span class="req">*</span></label>
+            <input type="text" class="form-control" id="n_title" required>
+          </div>
+          <div class="form-group" style="grid-column:span 2">
+            <label class="form-label" data-i18n="description">Message</label>
+            <textarea class="form-control" id="n_message" rows="4"></textarea>
+          </div>
+          <div class="form-group">
+            <label class="form-label" data-i18n="target_audience">Target Audience <span class="req">*</span></label>
+            <select class="form-control" id="n_target">
+              <option value="all_students" data-i18n="all_students">All Students</option>
+              <option value="specific_grade" data-i18n="specific_grade">Specific Grade</option>
+              <option value="specific_class" data-i18n="specific_class">Specific Class</option>
+            </select>
+          </div>
+          <div class="form-group" id="targetGradeGroup" style="display:none">
+            <label class="form-label" data-i18n="grade">Grade</label>
+            <select class="form-control" id="n_grade"></select>
+          </div>
+          <div class="form-group" id="targetClassGroup" style="display:none">
+            <label class="form-label" data-i18n="class">Class</label>
+            <select class="form-control" id="n_class"></select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-foot">
+        <button class="btn btn-secondary" onclick="closeModal('notifModal')" data-i18n="cancel">Cancel</button>
+        <button class="btn btn-primary" id="sendNotifBtn" data-i18n="send">Send</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/data.js"></script>
+  <script src="js/shared.js"></script>
+  <script src="js/notifications.js"></script>
+</body>
+</html>
