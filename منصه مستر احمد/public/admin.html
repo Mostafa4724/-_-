@@ -4,10 +4,10 @@
 <title>إدارة المنصة | منصة مستر أحمد</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&family=DM+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/app.css"></head>
+<link rel="stylesheet" href="app.css"></head>
 <body class="workspace">
 <aside class="sidebar">
-  <a class="brand" href="/admin"><span class="brand-mark">أ</span><span>منصة مستر أحمد</span></a>
+  <a class="brand" href="/admin"><span class="brand-mark">أ</span><span data-platform-name>منصة مستر أحمد</span></a>
   <div class="side-label">إدارة المنصة</div>
   <nav class="side-nav" id="adminNav">
     <button class="nav-link active" data-view="overview"><span class="nav-icon">⌂</span>نظرة عامة</button>
@@ -22,7 +22,7 @@
   <div class="sidebar-bottom"><div class="teacher-note"><span class="note-dot"></span><div><b>وضع المدرّس</b><small>تحكم كامل في المحتوى</small></div></div><button class="logout-btn" data-logout>↪ تسجيل الخروج</button></div>
 </aside>
 <main class="main-area">
-  <header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="topbar-title"><span class="topbar-kicker">مساحة العمل</span><b id="pageTitle">نظرة عامة</b></div><div class="topbar-user"><span class="avatar">م</span><div><b id="adminName">المدير</b><small>مدير المنصة</small></div></div></header>
+  <header class="topbar"><button class="mobile-menu" id="mobileMenu">☰</button><div class="topbar-title"><span class="topbar-kicker">مساحة العمل</span><b id="pageTitle">نظرة عامة</b></div><div class="topbar-user"><span class="avatar">م</span><div><b data-teacher-name id="adminName">المدير</b><small>مدير المنصة</small></div></div></header>
   <div class="content-area" id="adminContent"><div class="loading-state">جارٍ تحميل لوحة الإدارة...</div></div>
 </main>
 <div class="modal-backdrop hidden" id="modalBackdrop"><section class="modal-card" id="modalCard"></section></div>

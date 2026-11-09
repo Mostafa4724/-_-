@@ -206,6 +206,79 @@ app.post("/api/auth/logout", (req, res) => {
 });
 app.get("/api/auth/me", requireAuth, (req, res) => res.json({ user: publicUser(req.user) }));
 
+// Secure administrator account update
+app.put("/api/admin/account", authLimiter, requireAuth, requireAdmin, asyncRoute(async (req, res) => {
+  const currentEmail = cleanText(req.body.currentEmail, 160).toLowerCase();
+  const currentPassword = String(req.body.currentPassword || "");
+
+  const newName = cleanText(req.body.newName, 100);
+  const newEmail = cleanText(req.body.newEmail, 160).toLowerCase();
+  const newPassword = String(req.body.newPassword || "");
+  const confirmPassword = String(req.body.confirmPassword || "");
+
+  // Verify the current administrator credentials
+  if (
+    currentEmail !== req.user.email ||
+    !(await bcrypt.compare(currentPassword, req.user.password_hash))
+  ) {
+    return res.status(401).json({
+      error: "Your current email or password is incorrect."
+    });
+  }
+
+  if (!validEmail(newEmail)) {
+    return res.status(400).json({ error: "Enter a valid new email." });
+  }
+
+  if (newName.length < 2) {
+    return res.status(400).json({ error: "Enter a valid name." });
+  }
+
+  if (newPassword.length < 10) {
+    return res.status(400).json({
+      error: "Your new password must contain at least 10 characters."
+    });
+  }
+
+  if (newPassword !== confirmPassword) {
+    return res.status(400).json({
+      error: "The new passwords do not match."
+    });
+  }
+
+  const existing = one(
+    "SELECT id FROM users WHERE email = ? AND id != ?",
+    [newEmail, req.user.id]
+  );
+
+  if (existing) {
+    return res.status(409).json({
+      error: "This email is already being used by another account."
+    });
+  }
+
+  const hash = await bcrypt.hash(newPassword, 12);
+
+  changed(
+    "UPDATE users SET name = ?, email = ?, password_hash = ? WHERE id = ? AND role = 'admin'",
+    [newName, newEmail, hash, req.user.id]
+  );
+
+  const updatedUser = one(
+    "SELECT * FROM users WHERE id = ?",
+    [req.user.id]
+  );
+
+  // Refresh the administrator session
+  setAuthCookie(res, tokenFor(updatedUser));
+
+  res.json({
+    ok: true,
+    message: "Administrator account updated successfully.",
+    user: publicUser(updatedUser)
+  });
+}));
+
 // Student workspace
 app.get("/api/student/overview", requireAuth, (req, res) => {
   const id = req.user.id;
@@ -361,21 +434,157 @@ app.delete("/api/admin/notifications/:id", requireAuth, requireAdmin, (req, res)
   changed("DELETE FROM notifications WHERE id=?", [Number(req.params.id)]);
   res.json({ ok: true });
 });
+// Public platform settings
+app.get("/api/settings", (req, res) => {
+  const rows = all("SELECT key, value FROM settings");
 
-app.get("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
-  const rows = all("SELECT key,value FROM settings");
-  res.json(Object.fromEntries(rows.map(x => [x.key, x.value])));
+  const getSetting = (key, fallback = "") =>
+    rows.find(x => x.key === key)?.value || fallback;
+
+  res.json({
+    platform_name: getSetting("platform_name", "منصة مستر أحمد"),
+    teacher_name: getSetting("teacher_name", "مستر أحمد"),
+    support_email: getSetting("support_email"),
+    announcement: getSetting("announcement")
+  });
 });
+
+// Public platform settings
+app.get("/api/public/settings", (req, res) => {
+  const rows = all("SELECT key, value FROM settings");
+
+  res.json({
+    platform_name: rows.find(x => x.key === "platform_name")?.value || "منصة مستر أحمد",
+    teacher_name: rows.find(x => x.key === "teacher_name")?.value || "مستر أحمد",
+    announcement: rows.find(x => x.key === "announcement")?.value || ""
+  });
+});
+
+// Get platform settings
+app.get("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
+  const rows = all("SELECT key, value FROM settings");
+
+  res.json({
+    platform_name: rows.find(x => x.key === "platform_name")?.value || "منصة مستر أحمد",
+    teacher_name: rows.find(x => x.key === "teacher_name")?.value || "مستر أحمد",
+    support_email: rows.find(x => x.key === "support_email")?.value || "",
+    announcement: rows.find(x => x.key === "announcement")?.value || ""
+  });
+});
+
+// Update platform settings
 app.put("/api/admin/settings", requireAuth, requireAdmin, (req, res) => {
-  const allowed = ["platform_name","teacher_name","support_email","announcement"];
+  const allowed = [
+    "platform_name",
+    "teacher_name",
+    "support_email",
+    "announcement"
+  ];
+
   for (const key of allowed) {
-    if (req.body[key] !== undefined) db.run("INSERT INTO settings(key,value) VALUES(?,?) ON CONFLICT(key) DO UPDATE SET value=excluded.value", [key, cleanText(req.body[key], 500)]);
+    if (req.body[key] === undefined) continue;
+
+    const value = cleanText(
+      req.body[key],
+      key === "announcement" ? 3000 : 500
+    );
+
+    db.run(`
+      INSERT INTO settings (key, value)
+      VALUES (?, ?)
+      ON CONFLICT(key)
+      DO UPDATE SET value = excluded.value
+    `, [key, value]);
   }
+
   saveDb();
-  res.json({ ok: true });
+
+  res.json({
+    ok: true,
+    message: "تم تحديث إعدادات المنصة بنجاح."
+  });
 });
 
 app.get("/admin", (req, res) => res.sendFile(path.join(ROOT, "public", "admin.html")));
+
+// Verify the current administrator credentials
+app.post("/api/admin/account/verify", requireAuth, requireAdmin, authLimiter, asyncRoute(async (req, res) => {
+  const email = cleanText(req.body.email, 160).toLowerCase();
+  const password = String(req.body.password || "");
+
+  if (email !== req.user.email.toLowerCase() ||
+      !(await bcrypt.compare(password, req.user.password_hash))) {
+    return res.status(401).json({
+      error: "البريد الإلكتروني أو كلمة المرور الحالية غير صحيحة."
+    });
+  }
+
+  res.json({ ok: true });
+}));
+
+// Change administrator account details
+app.post("/api/admin/account/change", requireAuth, requireAdmin, authLimiter, asyncRoute(async (req, res) => {
+  const currentEmail = cleanText(req.body.current_email, 160).toLowerCase();
+  const currentPassword = String(req.body.current_password || "");
+
+  // Verify old credentials again before making changes
+  if (
+    currentEmail !== req.user.email.toLowerCase() ||
+    !(await bcrypt.compare(currentPassword, req.user.password_hash))
+  ) {
+    return res.status(401).json({
+      error: "بيانات الحساب الحالي غير صحيحة."
+    });
+  }
+
+  const name = cleanText(req.body.name, 100);
+  const email = cleanText(req.body.email, 160).toLowerCase();
+  const password = String(req.body.password || "");
+  const confirmPassword = String(req.body.confirm_password || "");
+
+  if (name.length < 2 || !validEmail(email) || password.length < 10) {
+    return res.status(400).json({
+      error: "تأكد من الاسم والبريد الإلكتروني وكلمة المرور (10 أحرف على الأقل)."
+    });
+  }
+
+  if (password !== confirmPassword) {
+    return res.status(400).json({
+      error: "كلمتا المرور غير متطابقتين."
+    });
+  }
+
+  const existing = one(
+    "SELECT id FROM users WHERE email = ? AND id <> ?",
+    [email, req.user.id]
+  );
+
+  if (existing) {
+    return res.status(409).json({
+      error: "هذا البريد الإلكتروني مستخدم بالفعل."
+    });
+  }
+
+  const hash = await bcrypt.hash(password, 12);
+
+  changed(
+    "UPDATE users SET name = ?, email = ?, password_hash = ? WHERE id = ? AND role = 'admin'",
+    [name, email, hash, req.user.id]
+  );
+
+  const updatedUser = one(
+    "SELECT * FROM users WHERE id = ?",
+    [req.user.id]
+  );
+
+  setAuthCookie(res, tokenFor(updatedUser));
+
+  res.json({
+    ok: true,
+    user: publicUser(updatedUser)
+  });
+}));
+
 app.get("/student", (req, res) => res.sendFile(path.join(ROOT, "public", "student.html")));
 app.get("/login", (req, res) => res.sendFile(path.join(ROOT, "public", "index.html")));
 app.get("/", (req, res) => res.sendFile(path.join(ROOT, "public", "index.html")));

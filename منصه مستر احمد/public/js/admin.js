@@ -57,17 +57,206 @@ async function renderAdminView(view){
     `${rows.length?rows.map(n=>`<article class="notice-card"><div class="card-foot"><h3>${escapeHTML(n.title)}</h3><button class="icon-action" data-remove-notice="${n.id}">حذف</button></div><p>${escapeHTML(n.body)}</p><small class="muted">${dateLabel(n.created_at)}</small></article>`).join(""):emptyState("لم يتم إرسال إشعارات بعد.")}`;
     $("#addNotice").addEventListener("click",openNoticeModal);
     $$("[data-remove-notice]").forEach(b=>b.addEventListener("click",async()=>{if(!confirm("حذف هذا الإشعار؟"))return;await API.delete(`/api/admin/notifications/${b.dataset.removeNotice}`);toast("تم حذف الإشعار.");navTo("notifications");}));
-  } else if(view==="settings"){
+  
+} else if(view==="settings"){
     const s=await API.get("/api/admin/settings");
-    adminContent.innerHTML=pageHead("إعدادات المنصة","عدّل بيانات المنصة التي تظهر في مساحة العمل.")+
-    `<section class="panel"><form id="settingsForm" class="form-grid">
-    ${field("اسم المنصة","platform_name",s.platform_name||"منصة مستر أحمد")}
-    ${field("اسم المدرّس","teacher_name",s.teacher_name||adminUser.name)}
-    ${field("بريد التواصل","support_email",s.support_email||"","email")}
-    ${field("إعلان للطلاب","announcement",s.announcement||"","textarea",true)}
-    <div class="field full"><button class="btn btn-primary" type="submit">حفظ الإعدادات</button></div></form></section>`;
-    $("#settingsForm").addEventListener("submit",async e=>{e.preventDefault();try{await API.put("/api/admin/settings",Object.fromEntries(new FormData(e.currentTarget)));toast("تم حفظ الإعدادات.");}catch(err){toast(err.message);}});
+
+    adminContent.innerHTML=pageHead(
+      "إعدادات المنصة",
+      "عدّل بيانات المنصة وحساب الإدارة."
+    )+
+
+    `<section class="panel">
+      <div class="panel-head">
+        <div>
+          <h3>إعدادات المنصة</h3>
+          <p>تعديل بيانات المنصة الأساسية.</p>
+        </div>
+      </div>
+
+      <form id="settingsForm" class="form-grid">
+        ${field("اسم المنصة","platform_name",s.platform_name||"منصة مستر أحمد")}
+        ${field("اسم المدرّس","teacher_name",s.teacher_name||adminUser.name)}
+        ${field("بريد التواصل","support_email",s.support_email||"","email")}
+        ${field("إعلان للطلاب","announcement",s.announcement||"","textarea",true)}
+
+        <div class="field full">
+          <button class="btn btn-primary" type="submit">
+            حفظ الإعدادات
+          </button>
+        </div>
+      </form>
+    </section>
+
+    <section class="panel" style="margin-top:20px">
+      <div class="panel-head">
+        <div>
+          <h3>تغيير حساب المدير</h3>
+          <p>تحقق من حسابك الحالي أولاً قبل تغيير بيانات الدخول.</p>
+        </div>
+      </div>
+
+      <!-- STEP 1 -->
+      <form id="accountVerifyForm" class="form-grid">
+
+        <div class="field full">
+          <label>البريد الإلكتروني الحالي</label>
+          <input name="email" type="email"
+            value="${escapeHTML(adminUser.email)}"
+            required>
+        </div>
+
+        <div class="field full">
+          <label>كلمة المرور الحالية</label>
+          <input name="password" type="password"
+            required autocomplete="current-password">
+        </div>
+
+        <div class="field full">
+          <button class="btn btn-primary" type="submit">
+            التحقق من الحساب ←
+          </button>
+        </div>
+      </form>
+
+      <!-- STEP 2 -->
+      <form id="accountChangeForm" class="form-grid hidden">
+
+        <div class="field full">
+          <label>اسم المدير الجديد</label>
+          <input name="name" type="text"
+            minlength="2" required>
+        </div>
+
+        <div class="field full">
+          <label>البريد الإلكتروني الجديد</label>
+          <input name="email" type="email" required>
+        </div>
+
+        <div class="field full">
+          <label>كلمة المرور الجديدة</label>
+          <input name="password" type="password"
+            minlength="10" required autocomplete="new-password">
+        </div>
+
+        <div class="field full">
+          <label>تأكيد كلمة المرور الجديدة</label>
+          <input name="confirm_password" type="password"
+            minlength="10" required autocomplete="new-password">
+        </div>
+
+        <div class="field full">
+          <button class="btn btn-primary" type="submit">
+            حفظ بيانات الحساب الجديدة ←
+          </button>
+
+          <button class="btn btn-secondary" type="button"
+            id="cancelAccountChange" style="margin-top:10px">
+            إلغاء
+          </button>
+        </div>
+      </form>
+    </section>`;
+
+    // Save platform settings
+    $("#settingsForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+
+      try{
+        await API.put(
+          "/api/admin/settings",
+          Object.fromEntries(new FormData(e.currentTarget))
+        );
+
+        toast("تم حفظ الإعدادات.");
+      }catch(err){
+        toast(err.message);
+      }
+    });
+
+    // Keep old credentials temporarily in memory
+    let verifiedCredentials = null;
+
+    // STEP 1: Verify old account
+    $("#accountVerifyForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+
+      const credentials=Object.fromEntries(
+        new FormData(e.currentTarget)
+      );
+
+      try{
+        await API.post("/api/admin/account/verify",credentials);
+
+        verifiedCredentials=credentials;
+
+        $("#accountVerifyForm").classList.add("hidden");
+        $("#accountChangeForm").classList.remove("hidden");
+
+        toast("تم التحقق بنجاح. يمكنك تغيير بيانات الحساب الآن.");
+
+      }catch(err){
+        toast(err.message);
+      }
+    });
+
+    // STEP 2: Change account
+    $("#accountChangeForm").addEventListener("submit",async e=>{
+      e.preventDefault();
+
+      const data=Object.fromEntries(
+        new FormData(e.currentTarget)
+      );
+
+      if(data.password !== data.confirm_password){
+        toast("كلمتا المرور غير متطابقتين.");
+        return;
+      }
+
+      try{
+        const result=await API.post(
+          "/api/admin/account/change",
+          {
+            ...data,
+            current_email:verifiedCredentials.email,
+            current_password:verifiedCredentials.password
+          }
+        );
+
+        // Update the current administrator information
+        adminUser=result.user;
+        $("#adminName").textContent=adminUser.name;
+
+        verifiedCredentials=null;
+
+        $("#accountChangeForm").reset();
+        $("#accountChangeForm").classList.add("hidden");
+
+        $("#accountVerifyForm").reset();
+        $("#accountVerifyForm").querySelector(
+          '[name="email"]'
+        ).value=adminUser.email;
+
+        $("#accountVerifyForm").classList.remove("hidden");
+
+        toast("تم تغيير بيانات حساب المدير بنجاح.");
+
+      }catch(err){
+        toast(err.message);
+      }
+    });
+
+    // Cancel account change
+    $("#cancelAccountChange").addEventListener("click",()=>{
+      verifiedCredentials=null;
+
+      $("#accountChangeForm").reset();
+      $("#accountChangeForm").classList.add("hidden");
+
+      $("#accountVerifyForm").classList.remove("hidden");
+    });
   }
+
 }
 function stat(label,value,note){return `<div class="stat-card"><div class="stat-label">${label}</div><div class="stat-value">${value}</div><div class="stat-note">${note}</div></div>`;}
 function quick(title,sub,view){return `<button class="data-row" data-quick="${view}" style="width:100%;text-align:right;background:none;border:0"><div><b>${title}</b><small>${sub}</small></div><span class="muted">←</span></button>`;}

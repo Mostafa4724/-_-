@@ -58,3 +58,39 @@ $$("[data-logout]").forEach(btn => btn.addEventListener("click", async () => {
   try { await API.post("/api/auth/logout", {}); } finally { location.href = "/"; }
 }));
 $("#mobileMenu")?.addEventListener("click", () => $(".sidebar")?.classList.toggle("open"));
+
+async function loadPlatformSettings() {
+  try {
+    const settings = await API.get("/api/public/settings");
+
+    // Update platform name everywhere
+    if (settings.platform_name) {
+      document.querySelectorAll("[data-platform-name]").forEach(el => {
+        el.textContent = settings.platform_name;
+      });
+
+      document.title = document.title.replace(
+        "منصة مستر أحمد",
+        settings.platform_name
+      );
+    }
+
+    // Update teacher name everywhere
+    if (settings.teacher_name) {
+      document.querySelectorAll("[data-teacher-name]").forEach(el => {
+        el.textContent = settings.teacher_name;
+      });
+    }
+
+    // Update announcement
+    document.querySelectorAll("[data-announcement]").forEach(el => {
+      el.textContent = settings.announcement || "";
+      el.hidden = !settings.announcement;
+    });
+
+  } catch (error) {
+    console.error("Settings loading failed:", error);
+  }
+}
+
+document.addEventListener("DOMContentLoaded", loadPlatformSettings);
